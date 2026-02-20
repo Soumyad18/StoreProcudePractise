@@ -1,31 +1,32 @@
 # Stored Procedure Practice with Java (Hands-on)
 
-This repository gives you a practical path to learn stored procedures from Java using JDBC with PostgreSQL.
+This repository gives you a practical path to learn stored procedures from Java using JDBC.
 
 ## What you'll practice
 
 1. Creating a schema and sample data.
 2. Writing stored procedures with:
    - input parameters
-   - output parameters (via `INOUT`)
-3. Returning tabular data from SQL and reading it from Java.
-4. Calling procedures from Java using `CallableStatement`.
+   - output parameters
+   - result sets
+3. Calling procedures from Java using `CallableStatement`.
+4. Running simple practice tasks to reinforce learning.
 
 ## Prerequisites
 
 - Java 17+
 - Maven 3.9+
-- Docker (recommended for local PostgreSQL)
+- Docker (recommended for local MySQL)
 
 ## Quick start
 
-### 1) Start PostgreSQL with Docker
+### 1) Start MySQL with Docker
 
 ```bash
 docker compose up -d
 ```
 
-This starts PostgreSQL on `localhost:5432` with:
+This starts MySQL on `localhost:3306` with:
 - database: `store_practice`
 - username: `app_user`
 - password: `app_pass`
@@ -33,7 +34,7 @@ This starts PostgreSQL on `localhost:5432` with:
 ### 2) Initialize tables + procedures
 
 ```bash
-docker compose exec -T postgres psql -U app_user -d store_practice -f sql/01_schema_and_procedures.sql
+mysql -h 127.0.0.1 -P 3306 -u app_user -papp_pass store_practice < sql/01_schema_and_procedures.sql
 ```
 
 ### 3) Run Java demo
@@ -52,14 +53,14 @@ mvn -q exec:java
 ## Practice exercises
 
 1. Add a procedure `get_products_by_price_range(min_price, max_price)` and call it from Java.
-2. Add a procedure to update stock by product id and return updated stock as `INOUT` parameter.
+2. Add a procedure to update stock by product id and return updated stock as OUT parameter.
 3. Add transaction logic in Java: call two procedures and rollback when second fails.
 4. Add validation in SQL (e.g., do not allow negative price) and show Java error handling.
 
 ## File map
 
-- `docker-compose.yml` → local PostgreSQL setup
-- `sql/01_schema_and_procedures.sql` → schema, data, and starter procedures/functions
+- `docker-compose.yml` → local MySQL setup
+- `sql/01_schema_and_procedures.sql` → schema, data, and starter stored procedures
 - `pom.xml` → Maven project config
 - `src/main/java/dev/practice/ProcedureDemo.java` → JDBC stored procedure calls
 

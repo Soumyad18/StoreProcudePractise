@@ -4,14 +4,13 @@ import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
 public class ProcedureDemo {
 
-    private static final String URL = "jdbc:postgresql://127.0.0.1:5432/store_practice";
+    private static final String URL = "jdbc:mysql://127.0.0.1:3306/store_practice";
     private static final String USER = "app_user";
     private static final String PASSWORD = "app_pass";
 
@@ -37,7 +36,6 @@ public class ProcedureDemo {
             statement.setString(2, category);
             statement.setBigDecimal(3, price);
             statement.setInt(4, stock);
-            statement.setNull(5, Types.INTEGER);
             statement.registerOutParameter(5, Types.INTEGER);
 
             statement.execute();
@@ -48,7 +46,6 @@ public class ProcedureDemo {
     private static int countByCategory(Connection connection, String category) throws SQLException {
         try (CallableStatement statement = connection.prepareCall("{call get_product_count_by_category(?, ?)}")) {
             statement.setString(1, category);
-            statement.setNull(2, Types.INTEGER);
             statement.registerOutParameter(2, Types.INTEGER);
 
             statement.execute();
@@ -57,11 +54,15 @@ public class ProcedureDemo {
     }
 
     private static void printProductsByCategory(Connection connection, String category) throws SQLException {
-        String sql = "SELECT id, name, category, price, stock FROM list_products_by_category(?)";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (CallableStatement statement = connection.prepareCall("{call list_products_by_category(?)}")) {
             statement.setString(1, category);
 
-            try (ResultSet rs = statement.executeQuery()) {
+            boolean hasResultSet = statement.execute();
+            if (!hasResultSet) {
+                return;
+            }
+
+            try (ResultSet rs = statement.getResultSet()) {
                 while (rs.next()) {
                     int id = rs.getInt("id");
                     String name = rs.getString("name");
